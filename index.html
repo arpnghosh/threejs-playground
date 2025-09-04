@@ -27,6 +27,7 @@
             display: flex;
             gap: 10px;
             align-items: center;
+            flex-wrap: wrap;
         }
         
         #fileInput {
@@ -42,10 +43,169 @@
             cursor: pointer;
             font-size: 14px;
             transition: background 0.2s;
+            white-space: nowrap;
         }
         
         .btn:hover {
             background: #555;
+        }
+        
+        .btn.active {
+            background: #0066cc;
+        }
+        
+        #shapes-menu {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            background: rgba(0,0,0,0.9);
+            padding: 20px;
+            border-radius: 8px;
+            display: none;
+            min-width: 350px;
+            border: 1px solid #444;
+        }
+        
+        #shapes-menu.visible {
+            display: block;
+        }
+        
+        .menu-section {
+            margin-bottom: 20px;
+        }
+        
+        .menu-section:last-child {
+            margin-bottom: 0;
+        }
+        
+        .menu-section h3 {
+            color: white;
+            margin: 0 0 15px 0;
+            font-size: 16px;
+            border-bottom: 1px solid #444;
+            padding-bottom: 5px;
+        }
+        
+        .shapes-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .shape-btn {
+            padding: 15px 10px;
+            background: #444;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .shape-btn:hover {
+            background: #555;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+        
+        .shape-btn:active {
+            transform: translateY(0);
+        }
+        
+        .shape-icon {
+            font-size: 18px;
+        }
+        
+        .controls-section {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .control-group label {
+            color: #ccc;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .slider-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .slider-control input[type="range"] {
+            flex: 1;
+            height: 20px;
+        }
+        
+        .slider-control span {
+            color: #ccc;
+            font-size: 11px;
+            min-width: 30px;
+        }
+        
+        .color-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .color-input {
+            width: 40px;
+            height: 30px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .action-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.2s;
+        }
+        
+        .clear-btn {
+            background: #cc3333;
+            color: white;
+        }
+        
+        .clear-btn:hover {
+            background: #dd4444;
+        }
+        
+        .reset-btn {
+            background: #666;
+            color: white;
+        }
+        
+        .reset-btn:hover {
+            background: #777;
         }
         
         #info {
@@ -68,6 +228,36 @@
         canvas {
             display: block;
         }
+        
+        .object-list {
+            max-height: 200px;
+            overflow-y: auto;
+            background: rgba(0,0,0,0.3);
+            border-radius: 4px;
+            padding: 10px;
+        }
+        
+        .object-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px;
+            margin: 2px 0;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+            font-size: 11px;
+            color: #ccc;
+        }
+        
+        .delete-object {
+            background: #cc3333;
+            color: white;
+            border: none;
+            border-radius: 2px;
+            padding: 2px 6px;
+            cursor: pointer;
+            font-size: 10px;
+        }
     </style>
 </head>
 <body>
@@ -77,7 +267,103 @@
                 Load STL File
             </button>
             <input type="file" id="fileInput" accept=".stl" />
+            
+            <button class="btn" id="shapes-toggle" onclick="toggleShapesMenu()">
+                Add Shapes
+            </button>
+            
             <span id="status">No file loaded</span>
+        </div>
+        
+        <div id="shapes-menu">
+            <div class="menu-section">
+                <h3>Basic Shapes</h3>
+                <div class="shapes-grid">
+                    <button class="shape-btn" onclick="addShape('cube')">
+                        <span class="shape-icon">⬜</span>
+                        <span>Cube</span>
+                    </button>
+                    <button class="shape-btn" onclick="addShape('sphere')">
+                        <span class="shape-icon">⚪</span>
+                        <span>Sphere</span>
+                    </button>
+                    <button class="shape-btn" onclick="addShape('cylinder')">
+                        <span class="shape-icon">⬛</span>
+                        <span>Cylinder</span>
+                    </button>
+                    <button class="shape-btn" onclick="addShape('cone')">
+                        <span class="shape-icon">🔺</span>
+                        <span>Cone</span>
+                    </button>
+                    <button class="shape-btn" onclick="addShape('plane')">
+                        <span class="shape-icon">▭</span>
+                        <span>Plane</span>
+                    </button>
+                    <button class="shape-btn" onclick="addShape('torus')">
+                        <span class="shape-icon">🍩</span>
+                        <span>Torus</span>
+                    </button>
+                    <button class="shape-btn" onclick="addShape('tetrahedron')">
+                        <span class="shape-icon">🔺</span>
+                        <span>Tetrahedron</span>
+                    </button>
+                    <button class="shape-btn" onclick="addShape('octahedron')">
+                        <span class="shape-icon">💎</span>
+                        <span>Octahedron</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="menu-section">
+                <h3>Shape Properties</h3>
+                <div class="controls-section">
+                    <div class="control-group">
+                        <label>Size</label>
+                        <div class="slider-control">
+                            <input type="range" id="sizeSlider" min="1" max="20" value="5" step="0.5">
+                            <span id="sizeValue">5.0</span>
+                        </div>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>Color</label>
+                        <div class="color-control">
+                            <input type="color" id="shapeColorPicker" value="#00aaff" class="color-input">
+                            <span>Shape Color</span>
+                        </div>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>X Position</label>
+                        <div class="slider-control">
+                            <input type="range" id="posXSlider" min="-30" max="30" value="0">
+                            <span id="posXValue">0</span>
+                        </div>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>Y Position</label>
+                        <div class="slider-control">
+                            <input type="range" id="posYSlider" min="-30" max="30" value="0">
+                            <span id="posYValue">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="menu-section">
+                <h3>Scene Objects</h3>
+                <div id="objectList" class="object-list">
+                    <div style="color: #666; font-size: 11px; text-align: center; padding: 10px;">
+                        No objects added yet
+                    </div>
+                </div>
+            </div>
+            
+            <div class="action-buttons">
+                <button class="action-btn reset-btn" onclick="resetView()">Reset View</button>
+                <button class="action-btn clear-btn" onclick="clearAllShapes()">Clear All</button>
+            </div>
         </div>
         
         <div id="info">
@@ -86,13 +372,16 @@
             <div>• Right click + drag: Pan</div>
             <div>• Scroll: Zoom</div>
             <div>• R: Reset view</div>
+            <div>• A: Toggle shape menu</div>
         </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
-        let scene, camera, renderer, controls;
+        let scene, camera, renderer;
         let currentMesh = null;
+        let sceneObjects = [];
+        let objectCounter = 0;
         
         // Initialize Three.js scene
         function init() {
@@ -113,22 +402,15 @@
             document.getElementById('container').appendChild(renderer.domElement);
             
             // Lighting
-            const ambientLight = new THREE.AmbientLight(0x404040, 0.4);
-            scene.add(ambientLight);
-            
-            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-            directionalLight.position.set(50, 50, 50);
-            directionalLight.castShadow = true;
-            directionalLight.shadow.mapSize.width = 2048;
-            directionalLight.shadow.mapSize.height = 2048;
-            scene.add(directionalLight);
+            setupLighting();
             
             // Grid
             const gridHelper = new THREE.GridHelper(100, 20, 0x444444, 0x444444);
             scene.add(gridHelper);
             
-            // Simple orbit controls implementation
+            // Controls
             initControls();
+            initSliderEvents();
             
             // Handle window resize
             window.addEventListener('resize', onWindowResize);
@@ -137,6 +419,147 @@
             document.addEventListener('keydown', onKeyDown);
             
             animate();
+        }
+        
+        function setupLighting() {
+            // Ambient light
+            const ambientLight = new THREE.AmbientLight(0x404040, 0.4);
+            scene.add(ambientLight);
+            
+            // Main directional light
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(50, 50, 50);
+            directionalLight.castShadow = true;
+            directionalLight.shadow.mapSize.width = 2048;
+            directionalLight.shadow.mapSize.height = 2048;
+            scene.add(directionalLight);
+            
+            // Fill light
+            const fillLight = new THREE.DirectionalLight(0xffffff, 0.3);
+            fillLight.position.set(-30, 20, -30);
+            scene.add(fillLight);
+        }
+        
+        function initSliderEvents() {
+            document.getElementById('sizeSlider').addEventListener('input', function() {
+                document.getElementById('sizeValue').textContent = this.value;
+            });
+            
+            document.getElementById('posXSlider').addEventListener('input', function() {
+                document.getElementById('posXValue').textContent = this.value;
+            });
+            
+            document.getElementById('posYSlider').addEventListener('input', function() {
+                document.getElementById('posYValue').textContent = this.value;
+            });
+        }
+        
+        function addShape(shapeType) {
+            const size = parseFloat(document.getElementById('sizeSlider').value);
+            const color = document.getElementById('shapeColorPicker').value;
+            const posX = parseFloat(document.getElementById('posXSlider').value);
+            const posY = parseFloat(document.getElementById('posYSlider').value);
+            
+            let geometry;
+            let name;
+            
+            switch(shapeType) {
+                case 'cube':
+                    geometry = new THREE.BoxGeometry(size, size, size);
+                    name = `Cube ${++objectCounter}`;
+                    break;
+                case 'sphere':
+                    geometry = new THREE.SphereGeometry(size/2, 32, 16);
+                    name = `Sphere ${++objectCounter}`;
+                    break;
+                case 'cylinder':
+                    geometry = new THREE.CylinderGeometry(size/2, size/2, size, 32);
+                    name = `Cylinder ${++objectCounter}`;
+                    break;
+                case 'cone':
+                    geometry = new THREE.ConeGeometry(size/2, size, 32);
+                    name = `Cone ${++objectCounter}`;
+                    break;
+                case 'plane':
+                    geometry = new THREE.PlaneGeometry(size, size);
+                    name = `Plane ${++objectCounter}`;
+                    break;
+                case 'torus':
+                    geometry = new THREE.TorusGeometry(size/2, size/4, 16, 100);
+                    name = `Torus ${++objectCounter}`;
+                    break;
+                case 'tetrahedron':
+                    geometry = new THREE.TetrahedronGeometry(size/2);
+                    name = `Tetrahedron ${++objectCounter}`;
+                    break;
+                case 'octahedron':
+                    geometry = new THREE.OctahedronGeometry(size/2);
+                    name = `Octahedron ${++objectCounter}`;
+                    break;
+            }
+            
+            const material = new THREE.MeshLambertMaterial({ 
+                color: color,
+                side: THREE.DoubleSide
+            });
+            
+            const mesh = new THREE.Mesh(geometry, material);
+            mesh.position.set(posX, posY, 0);
+            mesh.castShadow = true;
+            mesh.receiveShadow = true;
+            mesh.userData = { id: objectCounter, name: name, type: shapeType };
+            
+            scene.add(mesh);
+            sceneObjects.push(mesh);
+            
+            updateObjectList();
+        }
+        
+        function removeShape(id) {
+            const objectIndex = sceneObjects.findIndex(obj => obj.userData.id === id);
+            if (objectIndex !== -1) {
+                scene.remove(sceneObjects[objectIndex]);
+                sceneObjects.splice(objectIndex, 1);
+                updateObjectList();
+            }
+        }
+        
+        function clearAllShapes() {
+            sceneObjects.forEach(obj => scene.remove(obj));
+            sceneObjects = [];
+            objectCounter = 0;
+            updateObjectList();
+        }
+        
+        function updateObjectList() {
+            const listElement = document.getElementById('objectList');
+            
+            if (sceneObjects.length === 0) {
+                listElement.innerHTML = '<div style="color: #666; font-size: 11px; text-align: center; padding: 10px;">No objects added yet</div>';
+                return;
+            }
+            
+            let listHTML = '';
+            sceneObjects.forEach(obj => {
+                listHTML += `
+                    <div class="object-item">
+                        <span>${obj.userData.name}</span>
+                        <button class="delete-object" onclick="removeShape(${obj.userData.id})">×</button>
+                    </div>
+                `;
+            });
+            
+            listElement.innerHTML = listHTML;
+        }
+        
+        function toggleShapesMenu() {
+            const menu = document.getElementById('shapes-menu');
+            menu.classList.toggle('visible');
+        }
+        
+        function resetView() {
+            camera.position.set(50, 50, 50);
+            camera.lookAt(0, 0, 0);
         }
         
         // Simple orbit controls
@@ -220,16 +643,13 @@
         
         function onKeyDown(event) {
             if (event.key.toLowerCase() === 'r') {
-                resetCamera();
+                resetView();
+            } else if (event.key.toLowerCase() === 'a') {
+                toggleShapesMenu();
             }
         }
         
-        function resetCamera() {
-            camera.position.set(50, 50, 50);
-            camera.lookAt(0, 0, 0);
-        }
-        
-        // STL Loader
+        // STL Loader functions (keeping original functionality)
         function loadSTL(file) {
             const reader = new FileReader();
             reader.onload = function(event) {
@@ -245,26 +665,21 @@
             reader.readAsArrayBuffer(file);
         }
         
-        // Simple STL parser
         function parseSTL(arrayBuffer) {
             const view = new DataView(arrayBuffer);
             
-            // Check if binary STL
             if (arrayBuffer.byteLength < 84) {
                 throw new Error('File too small to be a valid STL');
             }
             
-            // Try to detect if it's ASCII STL
             const header = new TextDecoder().decode(new Uint8Array(arrayBuffer, 0, Math.min(80, arrayBuffer.byteLength)));
             if (header.toLowerCase().includes('solid')) {
-                // Might be ASCII STL
                 const text = new TextDecoder().decode(new Uint8Array(arrayBuffer));
                 if (text.includes('facet normal')) {
                     return parseASCIISTL(text);
                 }
             }
             
-            // Parse as binary STL
             return parseBinarySTL(view);
         }
         
@@ -277,13 +692,11 @@
             
             let offset = 84;
             for (let i = 0; i < triangles; i++) {
-                // Normal vector
                 const nx = view.getFloat32(offset, true);
                 const ny = view.getFloat32(offset + 4, true);
                 const nz = view.getFloat32(offset + 8, true);
                 offset += 12;
                 
-                // Vertices
                 for (let j = 0; j < 3; j++) {
                     const x = view.getFloat32(offset, true);
                     const y = view.getFloat32(offset + 4, true);
@@ -294,7 +707,7 @@
                     normals.push(nx, ny, nz);
                 }
                 
-                offset += 2; // Skip attribute byte count
+                offset += 2;
             }
             
             geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
@@ -339,12 +752,10 @@
         }
         
         function displaySTL(geometry, filename) {
-            // Remove existing mesh
             if (currentMesh) {
                 scene.remove(currentMesh);
             }
             
-            // Center and scale geometry
             geometry.computeBoundingBox();
             const box = geometry.boundingBox;
             const center = box.getCenter(new THREE.Vector3());
@@ -355,7 +766,6 @@
             geometry.translate(-center.x, -center.y, -center.z);
             geometry.scale(scale, scale, scale);
             
-            // Create material and mesh
             const material = new THREE.MeshLambertMaterial({ 
                 color: 0x00aaff,
                 side: THREE.DoubleSide
@@ -366,10 +776,8 @@
             currentMesh.receiveShadow = true;
             scene.add(currentMesh);
             
-            // Reset camera
-            resetCamera();
+            resetView();
             
-            // Update status
             const vertices = geometry.attributes.position.count;
             const triangles = vertices / 3;
             document.getElementById('status').innerHTML = 
@@ -389,12 +797,21 @@
             renderer.render(scene, camera);
         }
         
-        // File input handler
+        // Event listeners
         document.getElementById('fileInput').addEventListener('change', function(event) {
             const file = event.target.files[0];
             if (file) {
                 document.getElementById('status').textContent = 'Loading...';
                 loadSTL(file);
+            }
+        });
+        
+        document.addEventListener('click', function(event) {
+            const menu = document.getElementById('shapes-menu');
+            const toggle = document.getElementById('shapes-toggle');
+            
+            if (!menu.contains(event.target) && !toggle.contains(event.target)) {
+                menu.classList.remove('visible');
             }
         });
         
